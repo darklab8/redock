@@ -55,7 +55,8 @@ jobs:
         name: Test tear down
         with:
           run: |
-            docker stop testtarget ; docker rm testtarget
+            docker stop testtarget
+            docker rm testtarget
       - name: Test setup
         run: docker run -d -it --name=testtarget ubuntu:22.04 sleep infinity
 
