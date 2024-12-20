@@ -52,11 +52,14 @@ jobs:
             dist/redock-windows-arm64.exe
 
       - uses: webiny/action-post-run@2.0.1
-        name: Test tear down
+        name: Test tear down - rm
         with:
-          run: |
-            docker stop testtarget
-            docker rm testtarget
+          run: docker rm testtarget
+      - uses: webiny/action-post-run@2.0.1
+        name: Test tear down - stop
+        with:
+          run: docker stop testtarget 
+
       - name: Test setup
         run: docker run -d -it --name=testtarget ubuntu:22.04 sleep infinity
 
