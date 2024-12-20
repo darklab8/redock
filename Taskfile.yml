@@ -1,0 +1,14 @@
+version: "3"
+
+tasks:
+  build:bins:
+    cmds:
+      - mkdir -p dist
+      - rm dist/* | true
+
+      - GOOS=linux GOARCH=amd64 go build -v -o dist/redock-linux-amd64 main.go
+      - GOOS=linux GOARCH=arm64 go build -v -o dist/redock-linux-arm64 main.go
+      - GOOS=windows GOARCH=amd64 go build -v -o dist/redock-windows-amd64.exe main.go
+      - GOOS=windows GOARCH=arm64 go build -v -o dist/redock-windows-arm64.exe main.go
+      - GOOS=darwin GOARCH=amd64 go build -v -o dist/redock-macos-amd64 main.go
+      - GOOS=darwin GOARCH=arm64 go build -v -o dist/redock-macos-arm64 main.go
