@@ -31,3 +31,9 @@ docker build --debug --build-arg BUILD_VERSION=1 --tag darkwind8/temp:1 .
 docker build --debug --build-arg BUILD_VERSION=2 --tag darkwind8/temp:2 .
 docker run -e MYVAR=1 -d -it --name=darkbot-staging darkwind8/temp:1
 go run . --ctr=darkbot-staging --image_name=darkwind8/temp:2 // debugging this operation (for vscode offered debug launch configuration)
+
+# Ideas.
+
+We can probably resolve all the problems of a script to behave super correctly
+If writing into container label or anywhere else container launch configuration.
+That will give information to recreate new container with perfect settings
