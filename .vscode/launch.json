@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "host": "127.0.0.1",
+            "program": "${workspaceFolder}",
+            "args": [
+                "--ctr=darkbot-staging",
+                "--image_name=darkwind8/temp:2",
+            ],
+            "env": {
+                "ENVERANT_ENV_FILE": "${workspaceFolder}/.vscode/enverant.json",
+            },
+            "showLog": true,
+            
+        }
+    ]
+}

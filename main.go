@@ -77,7 +77,7 @@ func redock(container_id string, strict bool, image_name string) {
 	options.HostConfig.VolumesFrom = []string{old_container.ID}
 
 	// if old container has default value used for env value as already present in image
-	// Then get new env var from new image for override for new container
+	// Then get new env var from new image for override of a new container.
 	Oldimage, err := client.InspectImage(old_container.Image)
 	logus.Log.CheckFatal(err, "unable to inspect old image")
 	old_container_image_env := docker.Env(Oldimage.Config.Env)
@@ -89,15 +89,22 @@ func redock(container_id string, strict bool, image_name string) {
 	new_image_env_map := new_image_env.Map()
 
 	old_image_env := old_container_image_env.Map()
-	for key, ctr_value := range old_container_env.Map() {
-		if image_default_value, ok := old_image_env[key]; ok {
-			if ctr_value == image_default_value {
-				old_image_env[key] = new_image_env_map[key]
+	old_ctr_env := old_container_env.Map()
+	// Copy useful old container env vars to new image
+	for key, old_ctr_value := range old_ctr_env {
+		// if old container env var is equvalient to old image default
+		// then copy it only if it is not defined in new image
+		if image_default_value, ok := old_image_env[key]; ok && old_ctr_value == image_default_value {
+			if _, ok := new_image_env_map[key]; !ok {
+				new_image_env_map[key] = old_ctr_value
 			}
+			continue
 		}
+		// by default we copy all old container env vars to new container
+		new_image_env_map[key] = old_ctr_value
 	}
 	options.Config.Env = []string{}
-	for key, value := range old_image_env {
+	for key, value := range new_image_env_map {
 		options.Config.Env = append(options.Config.Env, fmt.Sprintf("%s=%s", key, value))
 	}
 

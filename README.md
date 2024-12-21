@@ -20,3 +20,14 @@ That's it. there `redock` script for you will try to repull the image name of a 
 
 See [Github actions workflow file](./.github/build.yml) for steps from `Test setup` to `Redock run`
 - Add to it DOCKER_HOST=“ssh://user@remotehost” and it will be usable for automated CD without knowing app container configuration
+
+## Limitations
+
+- To transfer correctly env vars to recreated container, i have only info about image default env vars and all env vars of containers without knowing which was set by user and which was already default. See `// Copy useful old container env vars to new image` for current behaviour. If needed we can customize this behaviour with extra parameters
+
+# Development
+
+docker build --debug --build-arg BUILD_VERSION=1 --tag darkwind8/temp:1 .
+docker build --debug --build-arg BUILD_VERSION=2 --tag darkwind8/temp:2 .
+docker run -e MYVAR=1 -d -it --name=darkbot-staging darkwind8/temp:1
+go run . --ctr=darkbot-staging --image_name=darkwind8/temp:2 // debugging this operation (for vscode offered debug launch configuration)
