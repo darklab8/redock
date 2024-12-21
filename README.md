@@ -37,3 +37,4 @@ go run . --ctr=darkbot-staging --image_name=darkwind8/temp:2 // debugging this o
 We can probably resolve all the problems of a script to behave super correctly
 If writing into container label or anywhere else container launch configuration.
 That will give information to recreate new container with perfect settings
+- Currently we need as nice option writing Environment variable key values defined on container launch.
