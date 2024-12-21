@@ -11,8 +11,6 @@ import (
 
 type RedockCfg struct {
 	utils_settings.UtilsEnvs
-
-	DockerHost string
 }
 
 var Env RedockCfg
@@ -29,8 +27,7 @@ func init() {
 
 func LoadEnv(envs *enverant.Enverant) {
 	Env = RedockCfg{
-		UtilsEnvs:  utils_settings.GetEnvs(envs),
-		DockerHost: envs.GetStrOr("DOCKER_HOST", "unix:///var/run/docker.sock"),
+		UtilsEnvs: utils_settings.GetEnvs(envs),
 	}
 	Workdir = filepath.Dir(utils_os.GetCurrentFolder().ToString())
 }

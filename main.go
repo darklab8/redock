@@ -9,8 +9,6 @@ import (
 
 	"github.com/darklab8/go-typelog/examples/logus"
 	"github.com/darklab8/go-typelog/typelog"
-	"github.com/darklab8/go-utils/utils/ptr"
-	"github.com/darklab8/redock/settings"
 )
 
 func main() {
@@ -18,7 +16,8 @@ func main() {
 
 	container_id := flag.String("ctr", "", "Container ID or Name you wish to restart")
 
-	docker_host := flag.String("docker_host", "", "Container ID or Name you wish to restart")
+	image_name := flag.String("image_name", "", "Image name to repull and use for recreation. Default to use old one")
+
 	strict := flag.Bool("strict_pull", false, "Strict mod. fails if failing to pull immage.")
 	flag.Parse()
 
@@ -26,17 +25,13 @@ func main() {
 		logus.Log.Fatal("ctr is required param, like `redock --ctr=darkbot`")
 	}
 
-	if *docker_host == "" {
-		docker_host = ptr.Ptr(settings.Env.DockerHost)
-	}
-
-	redock(*container_id, *docker_host, *strict)
+	redock(*container_id, *strict, *image_name)
 }
 
-func redock(container_id string, docker_host string, strict bool) {
+func redock(container_id string, strict bool, image_name string) {
 	logus.Log.Info("deploy is called")
 
-	client, _ := docker.NewClient(docker_host)
+	client, _ := docker.NewClientFromEnv()
 
 	// get container info
 	old_container, err := client.InspectContainerWithOptions(docker.InspectContainerOptions{
@@ -46,17 +41,24 @@ func redock(container_id string, docker_host string, strict bool) {
 
 	//TODO delete _new if an error occores?
 
+	target_image_name := ""
+	if image_name != "" {
+		target_image_name = image_name
+	} else {
+		image_name = old_container.Config.Image
+	}
+
 	// pull new image
-	fmt.Printf("Image: %s\n", old_container.Config.Image)
+	fmt.Printf("Image: %s\n", target_image_name)
 	if err := client.PullImage(docker.PullImageOptions{
-		Repository: old_container.Config.Image,
+		Repository: target_image_name,
 	}, docker.AuthConfiguration{}); err != nil {
 		logus.Log.CheckError(err, "failed repulling the img")
 		if strict {
 			logus.Log.Fatal("strict mod. failing repulling image is not alllowed")
 		}
 	} else {
-		logus.Log.Info("succesfully repulled image", typelog.Any("image", old_container.Config.Image))
+		logus.Log.Info("succesfully repulled image", typelog.Any("image", target_image_name))
 	}
 
 	//TODO handle image tags/labels?
@@ -69,6 +71,7 @@ func redock(container_id string, docker_host string, strict bool) {
 	var options docker.CreateContainerOptions
 	options.Name = tmp_name
 	options.Config = old_container.Config
+	options.Config.Image = target_image_name
 	options.HostConfig = old_container.HostConfig
 	// get all vomumes
 	options.HostConfig.VolumesFrom = []string{old_container.ID}
