@@ -38,3 +38,10 @@ We can probably resolve all the problems of a script to behave super correctly
 If writing into container label or anywhere else container launch configuration.
 That will give information to recreate new container with perfect settings
 - Currently we need as nice option writing Environment variable key values defined on container launch.
+
+# Thoughts about improvements.
+
+This is more proof of concept script and not really ideal for real production (but useful for pet projects i guess)
+
+Ideally we should utilize use Docker Swarm Service, or AWS ECS, or Kubernetes. All those services are capable to restart their image with pulled latest during the process in a simple manner. So problems solvable in `redock` are not necessary for more advanced containerized deployment strategies.
+
