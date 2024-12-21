@@ -76,6 +76,31 @@ func redock(container_id string, strict bool, image_name string) {
 	// get all vomumes
 	options.HostConfig.VolumesFrom = []string{old_container.ID}
 
+	// if old container has default value used for env value as already present in image
+	// Then get new env var from new image for override for new container
+	Oldimage, err := client.InspectImage(old_container.Image)
+	logus.Log.CheckFatal(err, "unable to inspect old image")
+	old_container_image_env := docker.Env(Oldimage.Config.Env)
+	old_container_env := docker.Env(old_container.Config.Env)
+
+	NewImage, err := client.InspectImage(old_container.Config.Image)
+	logus.Log.CheckFatal(err, "unable to inspect new image")
+	new_image_env := docker.Env(NewImage.Config.Env)
+	new_image_env_map := new_image_env.Map()
+
+	old_image_env := old_container_image_env.Map()
+	for key, ctr_value := range old_container_env.Map() {
+		if image_default_value, ok := old_image_env[key]; ok {
+			if ctr_value == image_default_value {
+				old_image_env[key] = new_image_env_map[key]
+			}
+		}
+	}
+	options.Config.Env = []string{}
+	for key, value := range old_image_env {
+		options.Config.Env = append(options.Config.Env, fmt.Sprintf("%s=%s", key, value))
+	}
+
 	// get all links
 	// this is a hack to fix the way links are returned and sent
 	links := old_container.HostConfig.Links
