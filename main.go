@@ -45,7 +45,7 @@ func redock(container_id string, strict bool, image_name string) {
 	if image_name != "" {
 		target_image_name = image_name
 	} else {
-		image_name = old_container.Config.Image
+		target_image_name = old_container.Config.Image
 	}
 
 	// pull new image
